@@ -29,7 +29,6 @@ func Unpack(s string) (string, error) {
 
 	accumulatedString := strings.Builder{}
 	var prevRune rune
-	var digitFounded bool
 	var digit, size int
 
 	for len(s) > 0 {
@@ -37,16 +36,11 @@ func Unpack(s string) (string, error) {
 
 		if unicode.IsDigit(r) {
 			digit = int(r) - 48 // get digit from rune
-			digitFounded = true
-		}
-
-		if digitFounded {
 			repeatedString, err := getRepeatedString(prevRune, digit)
 			if err != nil {
 				return "", err
 			}
 			accumulatedString.WriteString(repeatedString)
-			digitFounded = false
 		} else if (prevRune < 48 || prevRune > 57) && prevRune != 0 {
 			// not digit and not default for rune
 			accumulatedString.WriteRune(prevRune)
