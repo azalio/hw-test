@@ -27,7 +27,6 @@ func Unpack(s string) (string, error) {
 		return "", nil
 	}
 
-	builder := strings.Builder{}
 	accumulatedString := strings.Builder{}
 	var prevRune rune
 	var digitFounded bool
@@ -46,15 +45,12 @@ func Unpack(s string) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			builder.WriteString(repeatedString)
+			accumulatedString.WriteString(repeatedString)
 			digitFounded = false
 		} else if (prevRune < 48 || prevRune > 57) && prevRune != 0 {
 			// not digit and not default for rune
-			builder.WriteRune(prevRune)
+			accumulatedString.WriteRune(prevRune)
 		}
-
-		accumulatedString.WriteString(builder.String())
-		builder.Reset()
 
 		prevRune = r
 		s = s[size:]
