@@ -1,13 +1,17 @@
 package hw03frequencyanalysis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-// Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+type testCase struct {
+	name     string
+	text     string
+	expected []string
+}
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -43,14 +47,61 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var (
+	textOne           = "one one one one one one one one one one one one one one one one"
+	textNum           = "one two three four five six seven eight nine ten eleven"
+	textWord          = "word"
+	textStrangeSpaces = `space space Space  Space`
+)
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
 	})
 
-	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
-			expected := []string{
+	testTable := []testCase{
+
+		{
+			name: "just one",
+			text: textOne,
+			expected: []string{
+				"one",
+			},
+		},
+		{
+			name: "numbers",
+			text: textNum,
+			expected: []string{
+				"eight",
+				"eleven",
+				"five",
+				"four",
+				"nine",
+				"one",
+				"seven",
+				"six",
+				"ten",
+				"three",
+			},
+		},
+		{
+			name: "just word",
+			text: textWord,
+			expected: []string{
+				"word",
+			},
+		},
+		{
+			name: "strage spaces",
+			text: textStrangeSpaces,
+			expected: []string{
+				"space",
+			},
+		},
+		{
+			name: "vinne-puh",
+			text: text,
+			expected: []string{
 				"а",         // 8
 				"он",        // 8
 				"и",         // 6
@@ -61,22 +112,56 @@ func TestTop10(t *testing.T) {
 				"если",      // 4
 				"кристофер", // 4
 				"не",        // 4
+			},
+		},
+	}
+
+	for _, test := range testTable {
+		actual := Top10(test.text)
+		require.Equal(t, test.expected, actual, test.name)
+	}
+}
+
+func Test_clearWords(t *testing.T) {
+	type args struct {
+		s []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "just one",
+			args: args{[]string{"one"}},
+			want: []string{"one"},
+		},
+		{
+			name: "just two",
+			args: args{[]string{"one", "two"}},
+			want: []string{"one", "two"},
+		},
+		{
+			name: "just comma",
+			args: args{[]string{"one,"}},
+			want: []string{"one"},
+		},
+		{
+			name: "just comma and exclamation",
+			args: args{[]string{"!one,"}},
+			want: []string{"one"},
+		},
+		{
+			name: "just comma and exclamation and hypen",
+			args: args{[]string{"!one-one,"}},
+			want: []string{"one-one"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := clearWords(tt.args.s); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("clearWords() = %v, want %v", got, tt.want)
 			}
-			require.Equal(t, expected, Top10(text))
-		} else {
-			expected := []string{
-				"он",        // 8
-				"а",         // 6
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"-",         // 4
-				"Кристофер", // 4
-				"если",      // 4
-				"не",        // 4
-				"то",        // 4
-			}
-			require.Equal(t, expected, Top10(text))
-		}
-	})
+		})
+	}
 }
