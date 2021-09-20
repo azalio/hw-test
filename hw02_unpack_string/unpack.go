@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -30,12 +31,16 @@ func Unpack(s string) (string, error) {
 	accumulatedString := strings.Builder{}
 	var prevRune rune
 	var digit, size int
+	var err error
 
 	for len(s) > 0 {
 		r, size = utf8.DecodeRuneInString(s) // get one rune from string
 
 		if unicode.IsDigit(r) {
-			digit = int(r) - 48 // get digit from rune
+			digit, err = strconv.Atoi(string(r))
+			if err != nil {
+				return "", errors.New("can't convert rune to int")
+			}
 			repeatedString, err := getRepeatedString(prevRune, digit)
 			if err != nil {
 				return "", err
